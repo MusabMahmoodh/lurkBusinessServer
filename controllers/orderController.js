@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
-
+import { sms } from "../notify/sms.js";
+import { customerOrder, customerOrderCompleted } from "../data/smsMessages.js";
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
@@ -28,8 +29,10 @@ const addOrderItems = asyncHandler(async (req, res) => {
       shippingPrice,
       totalPrice,
     });
-    // console.log(order);
+
     const createdOrder = await order.save();
+    const message = customerOrder(order.shippingAddress.name, order._id);
+    // sms(message);
 
     res.status(201).json(createdOrder);
   }
@@ -88,7 +91,8 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     order.deliveredAt = Date.now();
 
     const updatedOrder = await order.save();
-
+    const message = customerOrder(order.shippingAddress.name, order._id);
+    // sms(message);
     res.json(updatedOrder);
   } else {
     res.status(404);

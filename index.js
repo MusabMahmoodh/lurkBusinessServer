@@ -32,8 +32,7 @@ cloudinary.config({
 dotenv.config();
 
 connectDB();
-// sendMail();
-// sms();
+
 const app = express();
 
 app.use(express.json({ limit: "10mb" }));
