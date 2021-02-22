@@ -169,7 +169,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // @access  Public
 const getTopProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({ isRecommended: true }).exec();
-  console.log(products);
+  // console.log(products);
   res.json(products);
 });
 
