@@ -90,7 +90,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     image,
     brand,
     category,
-    countInStock,
+    isAvailable,
+    isRecommended,
+    variation,
+    subVariation,
   } = req.body;
 
   const product = await Product.findById(req.params.id);
@@ -104,7 +107,10 @@ const updateProduct = asyncHandler(async (req, res) => {
       product.image = newImage.secure_url;
       product.brand = brand;
       product.category = category;
-      product.countInStock = countInStock;
+      product.isAvailable = isAvailable;
+      product.isRecommended = isRecommended;
+      product.variation = variation;
+      product.subVariation = subVariation;
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
@@ -162,8 +168,8 @@ const updateProduct = asyncHandler(async (req, res) => {
 // @route   GET /api/products/top
 // @access  Public
 const getTopProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
-
+  const products = await Product.find({ isRecommended: true }).exec();
+  console.log(products);
   res.json(products);
 });
 
