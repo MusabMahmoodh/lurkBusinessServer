@@ -5,26 +5,12 @@ import SubVariation from "../models/subVariationModel.js";
 // @route   GET /api/Variation
 // @access  Public
 const getVariation = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNumber) || 1;
-
-  const count = await Variation.countDocuments();
-  const category = await Variation.find()
-    .populate("subVariations")
-    .limit(pageSize)
-    .skip(pageSize * (page - 1))
-    .exec();
-  res.json({ category, page, pages: Math.ceil(count / pageSize) });
+  const variations = await Variation.find().populate("subVariations").exec();
+  res.json({ variations });
 });
 const getSubVariation = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNumber) || 1;
-
-  const count = await SubVariation.countDocuments();
-  const category = await SubVariation.find()
-    .limit(pageSize)
-    .skip(pageSize * (page - 1));
-  res.json({ category, page, pages: Math.ceil(count / pageSize) });
+  const subVariation = await SubVariation.find().exec();
+  res.json({ subVariation });
 });
 
 // @desc    Fetch single Variation
@@ -47,7 +33,7 @@ const getVariationById = asyncHandler(async (req, res) => {
 // @access  Public
 const getSubVariationById = asyncHandler(async (req, res) => {
   const variation = await SubVariation.findById(req.params.id);
-
+  console.log(variation);
   if (variation) {
     res.status(200).json(variation);
   } else {
@@ -100,7 +86,7 @@ const createVariation = asyncHandler(async (req, res) => {
 // // @route   POST /api/Variation
 // // @access  Private/Admin
 const createSubVariation = asyncHandler(async (req, res) => {
-  const variation = new Variation({
+  const variation = new SubVariation({
     name: "Sample name",
   });
 
@@ -119,7 +105,7 @@ const updateVariation = asyncHandler(async (req, res) => {
   if (variation) {
     variation.name = name;
     variation.subVariations = subVariations;
-
+    // console.log(variation);
     const updatedVariation = await variation.save();
     res.json(updatedVariation);
   } else {
@@ -131,7 +117,7 @@ const updateSubVariation = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
   const subVariation = await SubVariation.findById(req.params.id);
-
+  // console.log(subVariation);
   if (subVariation) {
     subVariation.name = name;
 

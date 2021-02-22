@@ -1,12 +1,12 @@
 import asyncHandler from "express-async-handler";
 import Product from "../models/productModel.js";
-
+import { upload_file } from "./fileUpload.js";
 // @desc    Fetch all products
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNumber) || 1;
+  const pageSize = 5;
+  const page = Number(req.query.page) || 1;
 
   const keyword = req.query.keyword
     ? {
@@ -21,7 +21,7 @@ const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({ ...keyword })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
-  console.log(products);
+  // console.log(products);
   res.json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
@@ -44,7 +44,6 @@ const getProductById = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
-
   if (product) {
     await product.remove();
     res.json({ message: "Product removed" });
@@ -63,7 +62,7 @@ const createProduct = asyncHandler(async (req, res) => {
     name: "Sample name",
     price: 0,
     newPrice: 0,
-    image: "/images/sample.jpg",
+    image: "",
     brand: "Sample brand",
     // category: "Sample category",
     // countInStock: 0,
@@ -87,6 +86,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     name,
     price,
     description,
+    newPrice,
     image,
     brand,
     category,
@@ -94,21 +94,26 @@ const updateProduct = asyncHandler(async (req, res) => {
   } = req.body;
 
   const product = await Product.findById(req.params.id);
+  try {
+    const newImage = await upload_file(image.data);
+    if (product) {
+      product.name = name;
+      product.price = price;
+      product.newPrice = newPrice;
+      product.description = description;
+      product.image = newImage.secure_url;
+      product.brand = brand;
+      product.category = category;
+      product.countInStock = countInStock;
 
-  if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
-
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
-    res.status(404);
-    throw new Error("Product not found");
+      const updatedProduct = await product.save();
+      res.json(updatedProduct);
+    } else {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+  } catch (error) {
+    res.status(204).json({ message: "Failed Updating" });
   }
 });
 

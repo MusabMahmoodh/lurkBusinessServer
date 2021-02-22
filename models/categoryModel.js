@@ -6,10 +6,12 @@ const categorySchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    variation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Variation",
-    },
+    variations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Variation",
+      },
+    ],
   },
   {
     timestamps: true,

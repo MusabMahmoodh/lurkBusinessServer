@@ -6,26 +6,25 @@ import SubVariation from "../models/subVariationModel.js";
 // @route   GET /api/Category
 // @access  Public
 const getCategory = asyncHandler(async (req, res) => {
-  const pageSize = 10;
-  const page = Number(req.query.pageNumber) || 1;
-
-  const count = await Category.countDocuments();
-
   const category = await Category.find()
-    .populate("variation")
-    .limit(pageSize)
-    .skip(pageSize * (page - 1))
+    .populate({
+      path: "variations",
+      select: "name",
+      populate: {
+        path: "subVariations",
+        select: "name",
+      },
+    })
+    .select("name")
     .exec();
-  res.json({ category, page, pages: Math.ceil(count / pageSize) });
+  res.json({ category });
 });
 
 // @desc    Fetch single Category
 // @route   GET /api/Category/:id
 // @access  Public
 const getCategoryById = asyncHandler(async (req, res) => {
-  const category = await (await Category.findById(req.params.id)).populate(
-    "variation"
-  );
+  const category = await Category.findById(req.params.id).populate("variation");
 
   if (category) {
     res.json(category);
@@ -66,15 +65,16 @@ const createCategory = asyncHandler(async (req, res) => {
 // // @route   PUT /api/Category/:id
 // // @access  Private/Admin
 const updateCategory = asyncHandler(async (req, res) => {
-  const { name, variation } = req.body;
+  const { name, variations } = req.body;
 
   const category = await Category.findById(req.params.id);
 
   if (category) {
     category.name = name;
-    category.variation = variation;
-
-    const updatedCategory = await Category.save();
+    category.variations = variations;
+    // console.log(category);
+    const updatedCategory = await category.save();
+    // console.log(updateCategory);
     res.json(updatedCategory);
   } else {
     res.status(404);
