@@ -16,12 +16,24 @@ const getProducts = asyncHandler(async (req, res) => {
         },
       }
     : {};
-  const search = req.query.category
+  const cat = req.query.category
     ? {
         ...keyword,
         category: req.query.category,
       }
     : { ...keyword };
+  const subCat = req.query.variation
+    ? {
+        ...cat,
+        variation: req.query.variation,
+      }
+    : { ...cat };
+  const search = req.query.subVariation
+    ? {
+        ...subCat,
+        subVariation: req.query.subVariation,
+      }
+    : { ...subCat };
   try {
     const count = await Product.countDocuments({ ...search });
     const products = await Product.find({ ...search })
