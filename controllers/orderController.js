@@ -1,7 +1,16 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import { sms } from "../notify/sms.js";
-import { customerOrder, customerOrderCompleted } from "../data/smsMessages.js";
+import { sendMail } from "../notify/email.js";
+import {
+  customerOrder,
+  customerOrderCompleted,
+  customerOrderInform,
+} from "../data/smsMessages.js";
+import {
+  cutomerOrderMail,
+  cutomerOrderDelivered,
+} from "../data/emailMessages.js";
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
@@ -31,8 +40,29 @@ const addOrderItems = asyncHandler(async (req, res) => {
     });
 
     const createdOrder = await order.save();
-    const message = customerOrder(order.shippingAddress.name, order._id);
-    // sms(message);
+    const messageCustomer = customerOrder(
+      order.shippingAddress.name,
+      order._id
+    );
+    const messageCustomerInfom = customerOrderInform(
+      order.shippingAddress.name,
+      order._id
+    );
+    //to customer
+    sms(
+      order.shippingAddress.name,
+      messageCustomer,
+      order.shippingAddress.contact
+    );
+    //to admin
+    sms("Admin", messageCustomerInfom);
+
+    // Email
+    const cutomerEmail = cutomerOrderMail(
+      order.shippingAddress.name,
+      order._id
+    );
+    sendMail(order.shippingAddress.email, "Succesfull order", cutomerEmail);
 
     res.status(201).json(createdOrder);
   }
@@ -91,8 +121,22 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     order.deliveredAt = Date.now();
 
     const updatedOrder = await order.save();
-    const message = customerOrder(order.shippingAddress.name, order._id);
-    // sms(message);
+
+    const messageCustomerDelivered = customerOrderCompleted(
+      order.shippingAddress.name,
+      order._id
+    );
+    //to customer
+    sms(
+      order.shippingAddress.name,
+      messageCustomerDelivered,
+      order.shippingAddress.contact
+    );
+    const cutomerEmail = cutomerOrderDelivered(
+      order.shippingAddress.name,
+      order._id
+    );
+    sendMail(order.shippingAddress.email, "Order delivered", cutomerEmail);
     res.json(updatedOrder);
   } else {
     res.status(404);

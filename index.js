@@ -18,8 +18,8 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import variationsRoutes from "./routes/variationsRoutes.js";
 
-import { sendMail } from "./notify/email.js";
-import { sms } from "./notify/sms.js";
+import Seeder from "./seeder.js";
+Seeder();
 // Cloudinary config
 import pkg from "cloudinary";
 const { v2: cloudinary } = pkg;

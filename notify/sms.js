@@ -1,10 +1,10 @@
 import mrnotifySMS from "mrnotify-sdk";
 
-export const sms = (msg) => {
+export const sms = (name = "Lurk customer", msg, contact = "94768306127") => {
   const requestData = {
-    msisdn: "94768306127",
-    name: "musab",
-    groups: ["94768306127"],
+    msisdn: contact,
+    name: name,
+    groups: [contact],
     message: msg,
   };
   mrnotifySMS.sendSMS(process.env.MR_NOTIFY, requestData);
