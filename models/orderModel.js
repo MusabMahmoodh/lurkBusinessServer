@@ -19,19 +19,19 @@ const orderSchema = mongoose.Schema(
       name: { type: String, required: true },
       address: { type: String, required: true },
       nearestLandMark: { type: String, required: true },
-      contactNumber: { type: String, required: true },
+      contact: { type: String, required: true },
       email: { type: String, required: true },
     },
     paymentMethod: {
       type: String,
       required: true,
     },
-    paymentResult: {
-      id: { type: String },
-      status: { type: String },
-      update_time: { type: String },
-      email_address: { type: String },
-    },
+    // paymentResult: {
+    //   id: { type: String },
+    //   status: { type: String },
+    //   update_time: { type: String },
+    //   email_address: { type: String },
+    // },
     // taxPrice: {
     //   type: Number,
     //   required: true,
