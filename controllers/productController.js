@@ -5,7 +5,7 @@ import { upload_file } from "./fileUpload.js";
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 5;
+  const pageSize = 1;
   const page = Number(req.query.page) || 1;
 
   const keyword = req.query.keyword
@@ -16,13 +16,25 @@ const getProducts = asyncHandler(async (req, res) => {
         },
       }
     : {};
+  const search = req.query.category
+    ? {
+        ...keyword,
+        category: req.query.category,
+      }
+    : { ...keyword };
+  try {
+    const count = await Product.countDocuments({ ...search });
+    const products = await Product.find({ ...search })
+      .limit(pageSize)
+      .skip(pageSize * (page - 1));
+    // console.log(products, keyword);
+    res.json({ products, page, pages: Math.ceil(count / pageSize) });
+  } catch (err) {
+    console.log(err);
+    res.json({ message: err.message });
+  }
 
-  const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword })
-    .limit(pageSize)
-    .skip(pageSize * (page - 1));
   // console.log(products);
-  res.json({ products, page, pages: Math.ceil(count / pageSize) });
 });
 
 // @desc    Fetch single product
